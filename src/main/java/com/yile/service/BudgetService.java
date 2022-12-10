@@ -57,9 +57,7 @@ public class BudgetService {
 
 		double tempBudgetAmount = 0.0;
 		while (!isSameYearAndMonth) {
-			tempBudgetAmount += Optional.ofNullable(budgetMap.get(getBudgetKey(startDate)))//
-					.map(budget -> budget.getAmount())//
-					.orElse(0);
+			tempBudgetAmount += getBudgetAmount(budgetMap, startDate);
 
 			startDate = startDate.plusMonths(1);
 			isSameYearAndMonth = (startDate.getYear() == endDate.getYear())//
