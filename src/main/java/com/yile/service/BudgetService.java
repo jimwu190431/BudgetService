@@ -31,32 +31,54 @@ public class BudgetService {
 				&& (startDate.getMonthValue() == endDate.getMonthValue())) {
 
 			// 只需要計算當月天數
-			int diffDay = endDate.getDayOfMonth() - startDate.getDayOfMonth() + 1;
-			int monthDays = startDate.lengthOfMonth();
-			int budgetAmount = Optional.ofNullable(budgetMap.get(getBudgetKey(startDate)))//
-					.map(budget -> budget.getAmount())//
-					.orElse(0);
-
-			return (double) (diffDay * budgetAmount) / (double) monthDays;
+			return getBudgetAmount(budgetMap, startDate, endDate.getDayOfMonth() - startDate.getDayOfMonth() + 1);
 		}
 
 		double tempBudgetAmount = 0.0;
-		tempBudgetAmount += getStartMonthBudgetAmount(startDate);
-		tempBudgetAmount += getEndMonthBudgetAmount(endDate);
-		tempBudgetAmount += getBetweenMonthBudgetAmount(startDate, endDate);
+		tempBudgetAmount += getStartMonthBudgetAmount(budgetMap, startDate);
+		tempBudgetAmount += getEndMonthBudgetAmount(budgetMap, endDate);
+		tempBudgetAmount += getBetweenMonthBudgetAmount(budgetMap, startDate, endDate);
 		return tempBudgetAmount;
 	}
 
-	private double getStartMonthBudgetAmount(LocalDate startDate) {
-		return 0.0;
+	private double getStartMonthBudgetAmount(Map<String, Budget> budgetMap, LocalDate startDate) {
+		return getBudgetAmount(budgetMap, startDate, startDate.lengthOfMonth() - startDate.getDayOfMonth() + 1);
 	}
 
-	private double getEndMonthBudgetAmount(LocalDate endDate) {
-		return 0.0;
+	private double getEndMonthBudgetAmount(Map<String, Budget> budgetMap, LocalDate endDate) {
+		return getBudgetAmount(budgetMap, endDate, endDate.getDayOfMonth());
 	}
 
-	private double getBetweenMonthBudgetAmount(LocalDate startDate, LocalDate endDate) {
-		return 0.0;
+	private double getBetweenMonthBudgetAmount(Map<String, Budget> budgetMap, LocalDate startDate, LocalDate endDate) {
+		startDate = startDate.plusMonths(1);
+
+		boolean isSameYearAndMonth = (startDate.getYear() == endDate.getYear())//
+				&& (startDate.getMonthValue() == endDate.getMonthValue());
+
+		double tempBudgetAmount = 0.0;
+		while (!isSameYearAndMonth) {
+			tempBudgetAmount += Optional.ofNullable(budgetMap.get(getBudgetKey(startDate)))//
+					.map(budget -> budget.getAmount())//
+					.orElse(0);
+
+			startDate = startDate.plusMonths(1);
+			isSameYearAndMonth = (startDate.getYear() == endDate.getYear())//
+					&& (startDate.getMonthValue() == endDate.getMonthValue());
+		}
+
+		return tempBudgetAmount;
+	}
+
+	private double getBudgetAmount(Map<String, Budget> budgetMap, LocalDate localDate, int diffDay) {
+		int monthDays = localDate.lengthOfMonth();
+		int budgetAmount = getBudgetAmount(budgetMap, localDate);
+		return (double) (diffDay * budgetAmount) / (double) monthDays;
+	}
+
+	private int getBudgetAmount(Map<String, Budget> budgetMap, LocalDate localDate) {
+		return Optional.ofNullable(budgetMap.get(getBudgetKey(localDate)))//
+				.map(budget -> budget.getAmount())//
+				.orElse(0);
 	}
 
 	private String getBudgetKey(LocalDate localDate) {

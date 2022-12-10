@@ -61,4 +61,28 @@ public class BudgetServiceTest {
 		double result = service.query(LocalDate.of(2022, 03, 01), LocalDate.of(2022, 03, 31));
 		Assert.assertEquals(31 * 10000, result, 0.00);
 	}
+
+	@Test
+	public void test_cross_month() {
+		double result = service.query(LocalDate.of(2021, 11, 30), LocalDate.of(2021, 12, 02));
+		Assert.assertEquals((1 * 1) + (2 * 10), result, 0.00);
+	}
+
+	@Test
+	public void test_cross_two_month() {
+		double result = service.query(LocalDate.of(2022, 01, 31), LocalDate.of(2022, 03, 02));
+		Assert.assertEquals((1 * 100) + (28 * 1000) + (2 * 10000), result, 0.00);
+	}
+
+	@Test
+	public void test_cross_year() {
+		double result = service.query(LocalDate.of(2021, 12, 30), LocalDate.of(2022, 01, 03));
+		Assert.assertEquals((2 * 10) + (3 * 100), result, 0.00);
+	}
+
+	@Test
+	public void test_cross_year_and_month() {
+		double result = service.query(LocalDate.of(2021, 12, 30), LocalDate.of(2022, 02, 03));
+		Assert.assertEquals((2 * 10) + (31 * 100) + (3 * 1000), result, 0.00);
+	}
 }
