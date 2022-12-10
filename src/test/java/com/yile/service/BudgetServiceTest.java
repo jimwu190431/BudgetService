@@ -38,19 +38,24 @@ public class BudgetServiceTest {
 		return budget;
 	}
 
+	@Test
+	public void test_day_error() {
+		double result = service.query(LocalDate.of(2022, 01, 31), LocalDate.of(2022, 01, 01));
+		Assert.assertEquals(0.0, result, 0.00);
+	}
 
 	@Test
 	public void test_same_month_same_day() {
 		double result = service.query(LocalDate.of(2022, 01, 01), LocalDate.of(2022, 01, 01));
 		Assert.assertEquals(1 * 100, result, 0.00);
 	}
-	
+
 	@Test
 	public void test_same_month_diff_day() {
 		double result = service.query(LocalDate.of(2022, 02, 01), LocalDate.of(2022, 02, 02));
 		Assert.assertEquals(2 * 1000, result, 0.00);
 	}
-	
+
 	@Test
 	public void test_all_month() {
 		double result = service.query(LocalDate.of(2022, 03, 01), LocalDate.of(2022, 03, 31));
